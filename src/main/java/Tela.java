@@ -10,12 +10,11 @@ import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,17 +22,37 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.html.simpleparser.HTMLWorker;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+
 import net.miginfocom.swing.MigLayout;
 
 public class Tela {
 
-	
+	  Paragraph paragrafo; 
+        Document doc;
+        List<Element> elements;
+        Element element;
 	
 	JFrame jframe;
 	JPanel jpanelprincipal;
 	JPanel jpanel_dados_principais;
 	JPanel jpanel_onde_estao_digitalizados;
 	JPanel jpanel_final;
+	List<String> linhas_informacoes = new ArrayList();
+	List<String> linhas_onde_digitalizados = new ArrayList();
+	List<String> linhas_final= new ArrayList();
+	String linha = "";
 	
 	JLabel jlabelServico = new JLabel("Serviço:");
 	JTextField jtextfieldServico = new JTextField();
@@ -303,10 +322,10 @@ public File arquivo;
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Component[] components = jpanel_dados_principais.getComponents();
-			List<String> linhas_informacoes = new ArrayList();
-			List<String> linhas_onde_digitalizados = new ArrayList();
-			List<String> linhas_final= new ArrayList();
-			String linha = "";
+			 linhas_informacoes = new ArrayList();
+			 linhas_onde_digitalizados = new ArrayList();
+			 linhas_final= new ArrayList();
+			 linha = "";
 			for(int i = 0; i< components.length;i++) {
 				if(components[i] instanceof JLabel) {
 					linha = ((JLabel)components[i]).getText() + " ";
@@ -352,7 +371,7 @@ public File arquivo;
 			 String home = properties.get("user.home").toString();
 			    String separator = properties.get("file.separator").toString();
 			    String directoryName = "cartorio";
-			    String fileName = System.currentTimeMillis() + ".png";
+			    String fileName = System.currentTimeMillis() + ".pdf";
 			    
 			    File dir = new File(home+separator+directoryName);
 			    dir.mkdir();    
@@ -371,12 +390,14 @@ public File arquivo;
 
 		
 //		    //write BufferedImage to file
-		    try {
-				ImageIO.write(createImage(linhas_informacoes, linhas_onde_digitalizados, linhas_final), "png", file);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			    
+			    generatePDF(linhas_informacoes, linhas_onde_digitalizados, linhas_final, file);
+//		    try {
+//				ImageIO.write(createImage(linhas_informacoes, linhas_onde_digitalizados, linhas_final), "png", file);
+//			} catch (IOException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
 		}
 	});
 		
@@ -434,7 +455,7 @@ public File arquivo;
 //			Drawing Informações TOPO
 	        font = new Font("Arial", Font.PLAIN, 26);
 	        g2d.setFont(font);
-	        nextLinePosition = 26 + padding_top;
+	        nextLinePosition = font.getSize() + padding_top;
 	        Shape informacoes_shape = font.createGlyphVector(g2d.getFontMetrics().getFontRenderContext(), informações).getOutline();
 	        // the shape returned is located at the left side of the baseline, this means we need to re-align it to the top left corner. We also want to set it the the center of the screen while we are there
 	        AffineTransform transform = AffineTransform.getTranslateInstance(
@@ -463,7 +484,7 @@ public File arquivo;
 //			Drawing Informações DIGITALIZADOS EM
 	        font = new Font("Arial", Font.PLAIN, 26);
 	        g2d.setFont(font);
-	        nextLinePosition = nextLinePosition + 26 + padding_top;
+	        nextLinePosition = nextLinePosition + font.getSize() + padding_top;
 	       Shape  digitalizados_shape = font.createGlyphVector(g2d.getFontMetrics().getFontRenderContext(), digitalizados).getOutline();
 	        // the shape returned is located at the left side of the baseline, this means we need to re-align it to the top left corner. We also want to set it the the center of the screen while we are there
 	        transform = AffineTransform.getTranslateInstance(
@@ -476,20 +497,84 @@ public File arquivo;
 	        font = new Font("Arial", Font.PLAIN, 18);
 	        g2d.setFont(font);
 	        fontSize = font.getSize();
-	        nextLinePosition= (int) (nextLinePosition + digitalizados_shape.getBounds().getY() + nextLinePosition);
-            g2d.drawString("lolll", padding_sides, nextLinePosition);
+	        nextLinePosition= (int) (informacoes_shape.getBounds().getY()*2 + nextLinePosition);
+	        for(int i = 0; i< linhas_onde_digitalizados.size();i++) {
+            g2d.drawString(linhas_onde_digitalizados.get(i), padding_sides, nextLinePosition);
+            nextLinePosition = nextLinePosition + fontSize;
 
+	        }
 
 
 
 	        g2d.dispose();
-//	        try {
-//	            ImageIO.write(img, "png", new File("Text.png"));
-//	        } catch (IOException ex) {
-//	            ex.printStackTrace();
-//	        }
-	        
 	        return img;
+		
+	}
+	
+	
+	
+	public void generatePDF(List<String> informacoes, List<String> digitalizados_em, List<String> finais, File file) {
+		com.itextpdf.text.Font fonte_titulo = FontFactory.getFont("Arial", 14);
+		fonte_titulo.setColor(BaseColor.RED);
+		com.itextpdf.text.Font fonte_paragrafo = FontFactory.getFont("Arial", 10);
+		LineSeparator ls = new LineSeparator();
+		
+		try {
+		        // create a new document
+			  
+		        doc = new Document( PageSize.A4, 20, 20, 20, 20 );
+		        PdfWriter.getInstance( doc, new FileOutputStream(file ) );
+
+		        doc.open();
+		        
+		        
+		        paragrafo = new Paragraph("INFORMAÇÕES");
+		        paragrafo.setAlignment(Element.ALIGN_CENTER);
+		        
+		        paragrafo.setFont(fonte_titulo);
+		        doc.add(paragrafo);
+		        
+		        for(int i = 0; i< informacoes.size();i++) {
+		        	paragrafo = new Paragraph(informacoes.get(i));
+			        paragrafo.setAlignment(Element.ALIGN_LEFT);
+			        paragrafo.setFont(fonte_paragrafo);
+			        doc.add(paragrafo);
+		        }
+		        
+		        
+		        doc.add(new Chunk(ls));
+	
+		        paragrafo = new Paragraph("Estão Digitalizados:");
+		        paragrafo.setAlignment(Element.ALIGN_CENTER);
+		        paragrafo.setFont(fonte_titulo);
+		        doc.add(paragrafo);
+		        
+		        for(int i = 0; i< digitalizados_em.size();i++) {
+		        
+		        	
+		        	paragrafo = new Paragraph(digitalizados_em.get(i));
+			        paragrafo.setAlignment(Element.ALIGN_LEFT);
+			        paragrafo.setFont(fonte_paragrafo);
+			        doc.add(paragrafo);
+		        }
+//		        
+		        doc.add(new Chunk(ls));
+//		        doc.add( Chunk.NEWLINE );
+
+
+		        
+		        for(int i = 0; i< finais.size();i++) {
+		        	paragrafo = new Paragraph(finais.get(i));
+			        paragrafo.setAlignment(Element.ALIGN_LEFT);
+			        paragrafo.setFont(fonte_paragrafo);
+			        doc.add(paragrafo);
+		        }	        
+		        doc.close();
+		    }
+		    catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		
 		
 	}
 	
