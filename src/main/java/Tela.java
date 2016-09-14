@@ -4,8 +4,10 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +33,7 @@ public class Tela {
 	JPanel jpanelprincipal;
 	JPanel jpanel_dados_principais;
 	JPanel jpanel_onde_estao_digitalizados;
+	JPanel jpanel_final;
 	
 	JLabel jlabelServico = new JLabel("Serviço:");
 	JTextField jtextfieldServico = new JTextField();
@@ -90,7 +93,7 @@ public class Tela {
 	
 	////Dados da pessoa
 	
-	JLabel jlblNome = new JLabel("Nome:");
+	JLabel jlblNome = new JLabel("Nome da Pessoa:");
 	JTextField jtxtNome = new JTextField();
 	
 	JLabel jlblProcessoNumero = new JLabel("Processo Número:");
@@ -251,6 +254,15 @@ public File arquivo;
 		jpanel_onde_estao_digitalizados.add(jlblOndeEstaoPastaDigital);
 		jpanel_onde_estao_digitalizados.add(jtxtOndeEstaoPastaDigital, "growx, pushx, span, wrap");
 		
+		
+		jpanel_final.add(jlblPrincipalNome);
+		jpanel_final.add(jtxtPrincipalNome, "growx, span, pushx, wrap");
+		
+		jpanel_final.add(jlblPrincipalProcessoNumero);
+		jpanel_final.add(jtxtPrincipalProcessoNumero, "growx, pushx, span, wrap");
+		
+		
+		
 	}
 	
 	public void run() {
@@ -258,6 +270,7 @@ public File arquivo;
 		jpanelprincipal = new JPanel(new MigLayout("fillx"));
 		jpanel_dados_principais = new JPanel(new MigLayout("fillx"));
 		jpanel_onde_estao_digitalizados = new JPanel(new MigLayout("fillx"));
+		jpanel_final = new JPanel(new MigLayout("fillx"));
 		 
 	
 		TitledBorder titled1 = new TitledBorder("Dados Principais");
@@ -265,16 +278,13 @@ public File arquivo;
 	    jpanel_dados_principais.setBorder(titled1);
 	    jpanel_onde_estao_digitalizados.setBorder(titled2);
 		
+	    jpanelprincipal.add(jpanel_dados_principais, "growx, wrap, span");
+	    jpanelprincipal.add(jpanel_onde_estao_digitalizados, "growx, span, wrap");
+	    jpanelprincipal.add(jpanel_final, "growx, span, wrap");
 		
 		buildScreen();
 		
-		jpanelprincipal.add(jpanel_dados_principais, "growx, wrap, span");
-		jpanelprincipal.add(jpanel_onde_estao_digitalizados, "growx, span, wrap");
-		jpanelprincipal.add(jlblPrincipalNome);
-		jpanelprincipal.add(jtxtPrincipalNome, "growx, span, pushx, wrap");
-		
-		jpanelprincipal.add(jlblPrincipalProcessoNumero);
-		jpanelprincipal.add(jtxtPrincipalProcessoNumero, "growx, pushx, span, wrap");
+
 		
 		buildSalvarButton();
 		
@@ -293,18 +303,44 @@ public File arquivo;
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Component[] components = jpanel_dados_principais.getComponents();
-			List<String> linhas = new ArrayList();
-			StringBuilder sb = new StringBuilder();
+			List<String> linhas_informacoes = new ArrayList();
+			List<String> linhas_onde_digitalizados = new ArrayList();
+			List<String> linhas_final= new ArrayList();
 			String linha = "";
 			for(int i = 0; i< components.length;i++) {
 				if(components[i] instanceof JLabel) {
 					linha = ((JLabel)components[i]).getText() + " ";
-					sb.append(linha);
 				}
 				if(components[i] instanceof JTextField) {
 					linha = linha + (((JTextField)components[i]).getText());
-					linhas.add(linha);
-					sb.append(linha);
+					linhas_informacoes.add(linha);
+					linha ="";
+
+				}
+			}
+			
+			components = jpanel_onde_estao_digitalizados.getComponents();
+
+			for(int i = 0; i< components.length;i++) {
+				if(components[i] instanceof JLabel) {
+					linha = ((JLabel)components[i]).getText() + " ";
+				}
+				if(components[i] instanceof JTextField) {
+					linha = linha + (((JTextField)components[i]).getText());
+					linhas_onde_digitalizados.add(linha);
+					linha ="";
+
+				}
+			}
+
+			components = jpanel_final.getComponents();
+			for(int i = 0; i< components.length;i++) {
+				if(components[i] instanceof JLabel) {
+					linha = ((JLabel)components[i]).getText() + " ";
+				}
+				if(components[i] instanceof JTextField) {
+					linha = linha + (((JTextField)components[i]).getText());
+					linhas_final.add(linha);
 					linha ="";
 
 				}
@@ -336,7 +372,7 @@ public File arquivo;
 		
 //		    //write BufferedImage to file
 		    try {
-				ImageIO.write(createImage(linhas), "png", file);
+				ImageIO.write(createImage(linhas_informacoes, linhas_onde_digitalizados, linhas_final), "png", file);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -355,17 +391,28 @@ public File arquivo;
 
 	
 	
-	public BufferedImage createImage(List<String> linhas) {
+	public BufferedImage createImage(List<String> linhas_informacoes, List<String> linhas_onde_digitalizados, List<String> linhas_final) {
 	      int width = 595;
 	        int height = 842;
 	        int fontSize;
 	        int nextLinePosition = 16;
+	        int padding_top = 4;
+	        int padding_bottom = 4;
+	        int padding_sides = 4;
 	        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 	        Graphics2D g2d = img.createGraphics();
-	        Font font = new Font("Arial", Font.PLAIN, 18);
+	        Font font;
+	        
+	        font = new Font("Arial", Font.PLAIN, 18);
 	        g2d.setFont(font);
+	        
+	        
+	        
+	        
 	        FontMetrics fm = g2d.getFontMetrics();
-
+	        String informações  = "INFORMAÇÕES";
+	        String digitalizados = "DIGITALIZADOS EM";
+	       
 	        g2d.dispose();
 
 	        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -379,27 +426,60 @@ public File arquivo;
 	        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 	        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 	        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-	        g2d.setFont(font);
 	        //fm = g2d.getFontMetrics();1
-	        g2d.setColor(Color.WHITE);
-	        g2d.fillRect(0, 0, width, height);
-	        g2d.setBackground(Color.YELLOW);
-
-
-            g2d.drawString("OS DOCUMENTOS A QUE SE REFEREM AS INFORMAÇÕES ABAIXO:", 0, nextLinePosition);
-	      
 	        g2d.setColor(Color.WHITE);
 	        g2d.fillRect(0, 0, width, height);
 	        g2d.setColor(Color.BLACK);
 
+//			Drawing Informações TOPO
+	        font = new Font("Arial", Font.PLAIN, 26);
+	        g2d.setFont(font);
+	        nextLinePosition = 26 + padding_top;
+	        Shape informacoes_shape = font.createGlyphVector(g2d.getFontMetrics().getFontRenderContext(), informações).getOutline();
+	        // the shape returned is located at the left side of the baseline, this means we need to re-align it to the top left corner. We also want to set it the the center of the screen while we are there
+	        AffineTransform transform = AffineTransform.getTranslateInstance(
+	                    -informacoes_shape.getBounds().getX() + width/2 - informacoes_shape.getBounds().width / 2, 
+	                    -informacoes_shape.getBounds().getY() + nextLinePosition);
+	        informacoes_shape = transform.createTransformedShape(informacoes_shape);
+	        g2d.draw(informacoes_shape);
+   
+	        font = new Font("Arial", Font.PLAIN, 18);
+	        g2d.setFont(font);
 	        fontSize = font.getSize();
-	        nextLinePosition=16;
+	        nextLinePosition= (int) (nextLinePosition + informacoes_shape.getBounds().getY() + nextLinePosition);
 
-	        for(int i = 0; i< linhas.size();i++) {
-	               g2d.drawString(linhas.get(i), 0, nextLinePosition);
+	        for(int i = 0; i< linhas_informacoes.size();i++) {
+	        		if(linhas_informacoes.get(i).startsWith("Nome da Pessoa")) {
+	        			nextLinePosition = nextLinePosition + 4;
+	        		    g2d.setColor(Color.RED);
+	        			g2d.drawLine(padding_sides, nextLinePosition, width , nextLinePosition);
+	        		    g2d.setColor(Color.BLACK);
+	        			nextLinePosition = (int) (nextLinePosition + 4 + informacoes_shape.getBounds().getY());
+	        		}
+	               g2d.drawString(linhas_informacoes.get(i), padding_sides, nextLinePosition);
 	               nextLinePosition = nextLinePosition + fontSize;
 	        }
-	       
+	        
+//			Drawing Informações DIGITALIZADOS EM
+	        font = new Font("Arial", Font.PLAIN, 26);
+	        g2d.setFont(font);
+	        nextLinePosition = nextLinePosition + 26 + padding_top;
+	       Shape  digitalizados_shape = font.createGlyphVector(g2d.getFontMetrics().getFontRenderContext(), digitalizados).getOutline();
+	        // the shape returned is located at the left side of the baseline, this means we need to re-align it to the top left corner. We also want to set it the the center of the screen while we are there
+	        transform = AffineTransform.getTranslateInstance(
+	                    -digitalizados_shape.getBounds().getX() + width/2 - digitalizados_shape.getBounds().width / 2, 
+	                    -digitalizados_shape.getBounds().getY() + nextLinePosition);
+	        digitalizados_shape = transform.createTransformedShape(digitalizados_shape);
+	        g2d.draw(digitalizados_shape);
+//	        
+	        
+	        font = new Font("Arial", Font.PLAIN, 18);
+	        g2d.setFont(font);
+	        fontSize = font.getSize();
+	        nextLinePosition= (int) (nextLinePosition + digitalizados_shape.getBounds().getY() + nextLinePosition);
+            g2d.drawString("lolll", padding_sides, nextLinePosition);
+
+
 
 
 	        g2d.dispose();
