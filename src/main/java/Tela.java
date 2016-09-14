@@ -1,3 +1,19 @@
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -129,43 +145,10 @@ public class Tela {
 	
 //	
 	JButton jbuttonSalvar = new JButton("Salvar");
+public File pasta;
+public File arquivo;
 
-	
-	
-	public void run() {
-		jframe = new JFrame();
-		jpanelprincipal = new JPanel(new MigLayout("fillx"));
-		jpanel_dados_principais = new JPanel(new MigLayout("fillx"));
-		jpanel_onde_estao_digitalizados = new JPanel(new MigLayout("fillx"));
-		 
-	
-		TitledBorder titled1 = new TitledBorder("Dados Principais");
-		TitledBorder titled2 = new TitledBorder("Onde Estão Digitalizados");
-	    jpanel_dados_principais.setBorder(titled1);
-	    jpanel_onde_estao_digitalizados.setBorder(titled2);
-		
-		
-		buildScreen();
-		
-		jpanelprincipal.add(jpanel_dados_principais, "growx, wrap, span");
-		jpanelprincipal.add(jpanel_onde_estao_digitalizados, "growx, span, wrap");
-		jpanelprincipal.add(jlblPrincipalNome);
-		jpanelprincipal.add(jtxtPrincipalNome, "growx, span, pushx, wrap");
-		
-		jpanelprincipal.add(jlblPrincipalProcessoNumero);
-		jpanelprincipal.add(jtxtPrincipalProcessoNumero, "growx, pushx, span, wrap");
-		
-		jpanelprincipal.add(jbuttonSalvar, "growx, span");
 
-		
-		jframe.setContentPane(jpanelprincipal);
-		jframe.setSize(500, 500);
-		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jframe.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-//		jframe.setUndecorated(true);
-		jframe.setVisible(true);
-		
-	}
 	private void buildScreen() {
 		jpanel_dados_principais.add(jlabelServico, "");
 		jpanel_dados_principais.add(jtextfieldServico, "growx, pushx");
@@ -268,19 +251,169 @@ public class Tela {
 		jpanel_onde_estao_digitalizados.add(jlblOndeEstaoPastaDigital);
 		jpanel_onde_estao_digitalizados.add(jtxtOndeEstaoPastaDigital, "growx, pushx, span, wrap");
 		
-		
-//
-	
-		
-		
-		
-
-		
-
-		
-		
-//		
-		
-	
 	}
+	
+	public void run() {
+		jframe = new JFrame();
+		jpanelprincipal = new JPanel(new MigLayout("fillx"));
+		jpanel_dados_principais = new JPanel(new MigLayout("fillx"));
+		jpanel_onde_estao_digitalizados = new JPanel(new MigLayout("fillx"));
+		 
+	
+		TitledBorder titled1 = new TitledBorder("Dados Principais");
+		TitledBorder titled2 = new TitledBorder("Onde Estão Digitalizados");
+	    jpanel_dados_principais.setBorder(titled1);
+	    jpanel_onde_estao_digitalizados.setBorder(titled2);
+		
+		
+		buildScreen();
+		
+		jpanelprincipal.add(jpanel_dados_principais, "growx, wrap, span");
+		jpanelprincipal.add(jpanel_onde_estao_digitalizados, "growx, span, wrap");
+		jpanelprincipal.add(jlblPrincipalNome);
+		jpanelprincipal.add(jtxtPrincipalNome, "growx, span, pushx, wrap");
+		
+		jpanelprincipal.add(jlblPrincipalProcessoNumero);
+		jpanelprincipal.add(jtxtPrincipalProcessoNumero, "growx, pushx, span, wrap");
+		
+		buildSalvarButton();
+		
+		jframe.setContentPane(jpanelprincipal);
+		jframe.setSize(500, 500);
+		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jframe.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		jframe.setVisible(true);
+		
+	}
+	
+	public void buildSalvarButton() {
+		
+	jbuttonSalvar.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Component[] components = jpanel_dados_principais.getComponents();
+			List<String> linhas = new ArrayList();
+			StringBuilder sb = new StringBuilder();
+			String linha = "";
+			for(int i = 0; i< components.length;i++) {
+				if(components[i] instanceof JLabel) {
+					linha = ((JLabel)components[i]).getText() + " ";
+					sb.append(linha);
+				}
+				if(components[i] instanceof JTextField) {
+					linha = linha + (((JTextField)components[i]).getText());
+					linhas.add(linha);
+					sb.append(linha);
+					linha ="";
+
+				}
+			}
+			
+			
+//			BufferedImage image = convertTextToGraphic(textos, new Font("Arial", Font.PLAIN, 18));
+		    java.util.Properties properties = System.getProperties();
+			 String home = properties.get("user.home").toString();
+			    String separator = properties.get("file.separator").toString();
+			    String directoryName = "cartorio";
+			    String fileName = System.currentTimeMillis() + ".png";
+			    
+			    File dir = new File(home+separator+directoryName);
+			    dir.mkdir();    
+			    File file = new File(dir,fileName);
+
+			    // the rest of your code
+			    try {
+			        if (file.createNewFile()) {
+			            System.out.println("created new fle");
+			        } else {
+			            System.out.println("could not create a new file");
+			        }
+			    } catch (IOException e1) {
+			        e1.printStackTrace();
+			    }
+
+		
+//		    //write BufferedImage to file
+		    try {
+				ImageIO.write(createImage(linhas), "png", file);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	});
+		
+		
+	
+	
+	
+		jpanelprincipal.add(jbuttonSalvar, " span, growx");
+
+	}
+	
+
+	
+	
+	public BufferedImage createImage(List<String> linhas) {
+	      int width = 595;
+	        int height = 842;
+	        int fontSize;
+	        int nextLinePosition = 16;
+	        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+	        Graphics2D g2d = img.createGraphics();
+	        Font font = new Font("Arial", Font.PLAIN, 18);
+	        g2d.setFont(font);
+	        FontMetrics fm = g2d.getFontMetrics();
+
+	        g2d.dispose();
+
+	        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	        g2d = img.createGraphics();
+	        
+	        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+	        g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+	        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+	        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+	        g2d.setFont(font);
+	        //fm = g2d.getFontMetrics();1
+	        g2d.setColor(Color.WHITE);
+	        g2d.fillRect(0, 0, width, height);
+	        g2d.setBackground(Color.YELLOW);
+
+
+            g2d.drawString("OS DOCUMENTOS A QUE SE REFEREM AS INFORMAÇÕES ABAIXO:", 0, nextLinePosition);
+	      
+	        g2d.setColor(Color.WHITE);
+	        g2d.fillRect(0, 0, width, height);
+	        g2d.setColor(Color.BLACK);
+
+	        fontSize = font.getSize();
+	        nextLinePosition=16;
+
+	        for(int i = 0; i< linhas.size();i++) {
+	               g2d.drawString(linhas.get(i), 0, nextLinePosition);
+	               nextLinePosition = nextLinePosition + fontSize;
+	        }
+	       
+
+
+	        g2d.dispose();
+//	        try {
+//	            ImageIO.write(img, "png", new File("Text.png"));
+//	        } catch (IOException ex) {
+//	            ex.printStackTrace();
+//	        }
+	        
+	        return img;
+		
+	}
+	
 }
+
+
+
