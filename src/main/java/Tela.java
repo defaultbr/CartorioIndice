@@ -49,7 +49,7 @@ public class Tela {
         List<Element> elements;
         Element element;
 	int pos;
-	int porcentagem = 100;
+	int porcentagem = 50;
 	JFrame jframe;
 	JPanel jpanelprincipal;
 	JPanel jpanelEsquerdo;
@@ -195,6 +195,7 @@ public File pasta;
 public File arquivo;
 private File img_mostrando;
 private JPanel jpanel_com_jscroll;
+protected Component[] components;
 
 
 	private void buildScreen() {
@@ -264,8 +265,8 @@ private JPanel jpanel_com_jscroll;
 		jpanel_dados_principais.add(jlblNumerosAnteriores);
 		jpanel_dados_principais.add(jtxtNumerosAnteriores, "growx, pushx, span, wrap");
 		
-		jpanel_dados_principais.add(jlblObservacoes);
-		jpanel_dados_principais.add(jtxtObservacoes, "growx, pushx, span, wrap");
+//		jpanel_dados_principais.add(jlblObservacoes);
+//		jpanel_dados_principais.add(jtxtObservacoes, "growx, pushx, span, wrap");
 		
 		
 //		
@@ -396,6 +397,9 @@ private JPanel jpanel_com_jscroll;
 	    jpanel_final.add(jlblPrincipalProcessoNumero);
 	    jpanel_final.add(jtxtPrincipalProcessoNumero, "growx, pushx, wrap");
 	    
+	    jpanel_final.add(jlblObservacoes);
+	    jpanel_final.add(jtxtObservacoes, "growx, pushx, wrap");
+	    
 
 	    jpanel_final.add(jbuttonSalvar, "grow");
 	    jpanel_final.add(jbtn_escolher_pasta, "");
@@ -439,16 +443,21 @@ private JPanel jpanel_com_jscroll;
 		jlbl_zoom_porcentagem.setText(porcentagem + "%");
 		jlbl_posicao.setText((posicao+1) + "/" + arquivos.length);
 		img_mostrando = arquivos[posicao];
-		if(img_mostrando != null) {
-			try {
-				icon = new ImageIcon(ImageIO.read(new File(img_mostrando.getAbsolutePath())));
-				if(porcentagem > 0 && porcentagem < 100) {
-					icon = new ImageIcon(icon.getImage().getScaledInstance((int) (icon.getIconWidth() * porcentagem/100), (int) (icon.getIconHeight() * porcentagem/100), Image.SCALE_SMOOTH));
+		System.out.println(img_mostrando.getName());
+		try {
+			icon = new ImageIcon(ImageIO.read(new File(img_mostrando.getAbsolutePath())));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if(img_mostrando != null) {
+			icon = new ImageIcon(icon.getImage().getScaledInstance((int) (icon.getIconWidth() * porcentagem/100), (int) (icon.getIconHeight() * porcentagem/100), Image.SCALE_SMOOTH));
+			if(porcentagem > 0 && porcentagem < 100 && icon.getIconHeight() > 0 && icon.getIconWidth() > 0) {
+				icon = new ImageIcon(icon.getImage().getScaledInstance((int) (icon.getIconWidth() * porcentagem/100), (int) (icon.getIconHeight() * porcentagem/100), Image.SCALE_SMOOTH));
+
+			} else {
+				icon = null;
 			} 
 			
 		picLabel.setIcon(icon);
@@ -481,7 +490,9 @@ private JPanel jpanel_com_jscroll;
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Component[] components = jpanel_dados_principais.getComponents();
+			if(arquivos.length > 0) {
+			
+			components = jpanel_dados_principais.getComponents();
 			 linhas_informacoes = new ArrayList();
 			 linhas_onde_digitalizados = new ArrayList();
 			 linhas_final= new ArrayList();
@@ -527,13 +538,13 @@ private JPanel jpanel_com_jscroll;
 			
 			
 //			BufferedImage image = convertTextToGraphic(textos, new Font("Arial", Font.PLAIN, 18));
-		    java.util.Properties properties = System.getProperties();
-			 String home = properties.get("user.home").toString();
-			    String separator = properties.get("file.separator").toString();
-			    String directoryName = "cartorio";
-			    String fileName = System.currentTimeMillis() + ".pdf";
+//		    java.util.Properties properties = System.getProperties();
+//			 String home = properties.get("user.home").toString();
+//			    String separator = properties.get("file.separator").toString();
+			    String directoryName =  arquivos[pos].getParent();
+			    String fileName =  arquivos[pos].getName().substring(0,arquivos[pos].getName().lastIndexOf(".")) + ".pdf";
 			    
-			    File dir = new File(home+separator+directoryName);
+			    File dir = new File(directoryName);
 			    dir.mkdir();    
 			    File file = new File(dir,fileName);
 
@@ -558,6 +569,7 @@ private JPanel jpanel_com_jscroll;
 //				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
+		}
 		}
 	});
 		
