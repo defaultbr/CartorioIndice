@@ -15,10 +15,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -46,9 +49,12 @@ public class Tela {
 	
 	JFrame jframe;
 	JPanel jpanelprincipal;
+	JPanel jpanelEsquerdo;
+	JPanel jpanelDireito;
 	JPanel jpanel_dados_principais;
 	JPanel jpanel_onde_estao_digitalizados;
 	JPanel jpanel_final;
+	JScrollPane jscroll_pane_imagem;
 	List<String> linhas_informacoes = new ArrayList();
 	List<String> linhas_onde_digitalizados = new ArrayList();
 	List<String> linhas_final= new ArrayList();
@@ -274,11 +280,7 @@ public File arquivo;
 		jpanel_onde_estao_digitalizados.add(jtxtOndeEstaoPastaDigital, "growx, pushx, span, wrap");
 		
 		
-		jpanel_final.add(jlblPrincipalNome);
-		jpanel_final.add(jtxtPrincipalNome, "growx, span, pushx, wrap");
-		
-		jpanel_final.add(jlblPrincipalProcessoNumero);
-		jpanel_final.add(jtxtPrincipalProcessoNumero, "growx, pushx, span, wrap");
+	
 		
 		
 		
@@ -286,7 +288,9 @@ public File arquivo;
 	
 	public void run() {
 		jframe = new JFrame();
-		jpanelprincipal = new JPanel(new MigLayout("fillx"));
+		jpanelprincipal = new JPanel(new MigLayout("debug, fillx", "[grow, 50%][grow, 50%]"));
+		jpanelEsquerdo = new JPanel(new MigLayout("fillx"));
+		jpanelDireito = new JPanel(new MigLayout("fillx"));
 		jpanel_dados_principais = new JPanel(new MigLayout("fillx"));
 		jpanel_onde_estao_digitalizados = new JPanel(new MigLayout("fillx"));
 		jpanel_final = new JPanel(new MigLayout("fillx"));
@@ -297,15 +301,33 @@ public File arquivo;
 	    jpanel_dados_principais.setBorder(titled1);
 	    jpanel_onde_estao_digitalizados.setBorder(titled2);
 		
-	    jpanelprincipal.add(jpanel_dados_principais, "growx, wrap, span");
-	    jpanelprincipal.add(jpanel_onde_estao_digitalizados, "growx, span, wrap");
-	    jpanelprincipal.add(jpanel_final, "growx, span, wrap");
+	    jpanelEsquerdo.add(jpanel_dados_principais, "growx, wrap");
+	    jpanelEsquerdo.add(jpanel_onde_estao_digitalizados, "growx, wrap");
+	    jpanelEsquerdo.add(jpanel_final, "growx, wrap");
+	    
+
+
+
+	    jpanelprincipal.add(jpanelEsquerdo, "growx");
+	    jscroll_pane_imagem = new JScrollPane(jpanelDireito);
+	    jpanelprincipal.add(jscroll_pane_imagem, "growx, wrap");
 		
 		buildScreen();
 		
 
 		
 		buildSalvarButton();
+		buildImagePanel();
+		
+	    jpanel_final.add(jlblPrincipalNome, "");
+	    jpanel_final.add(jtxtPrincipalNome, "growx, pushx, wrap");
+	    
+	    jpanel_final.add(jlblPrincipalProcessoNumero);
+	    jpanel_final.add(jtxtPrincipalProcessoNumero, "growx, pushx, wrap");
+	    
+
+	    jpanel_final.add(jbuttonSalvar, " span, growx");
+		jpanelprincipal.add(jpanel_final, "growx, span, wrap");
 		
 		jframe.setContentPane(jpanelprincipal);
 		jframe.setSize(500, 500);
@@ -352,18 +374,18 @@ public File arquivo;
 				}
 			}
 
-			components = jpanel_final.getComponents();
-			for(int i = 0; i< components.length;i++) {
-				if(components[i] instanceof JLabel) {
-					linha = ((JLabel)components[i]).getText() + " ";
-				}
-				if(components[i] instanceof JTextField) {
-					linha = linha + (((JTextField)components[i]).getText());
-					linhas_final.add(linha);
-					linha ="";
-
-				}
-			}
+//			components = jpanel_final.getComponents();
+//			for(int i = 0; i< components.length;i++) {
+//				if(components[i] instanceof JLabel) {
+//					linha = ((JLabel)components[i]).getText() + " ";
+//				}
+//				if(components[i] instanceof JTextField) {
+//					linha = linha + (((JTextField)components[i]).getText());
+//					linhas_final.add(linha);
+//					linha ="";
+//
+//				}
+//			}
 			
 			
 //			BufferedImage image = convertTextToGraphic(textos, new Font("Arial", Font.PLAIN, 18));
@@ -405,7 +427,6 @@ public File arquivo;
 	
 	
 	
-		jpanelprincipal.add(jbuttonSalvar, " span, growx");
 
 	}
 	
@@ -431,7 +452,7 @@ public File arquivo;
 	        
 	        
 	        FontMetrics fm = g2d.getFontMetrics();
-	        String informações  = "INFORMAÇÕES";
+	        String informações  = "OS DOCUMENTOS A QUE SE REFERE AS INFORMAÇÕES ABAIXO:";
 	        String digitalizados = "DIGITALIZADOS EM";
 	       
 	        g2d.dispose();
@@ -527,14 +548,20 @@ public File arquivo;
 
 		        doc.open();
 		        
-		        
-		        paragrafo = new Paragraph("INFORMAÇÕES");
+		        String informações  = "OS DOCUMENTOS A QUE SE REFERE AS INFORMAÇÕES ABAIXO:";
+
+		        paragrafo = new Paragraph(informações);
 		        paragrafo.setAlignment(Element.ALIGN_CENTER);
 		        
 		        paragrafo.setFont(fonte_titulo);
 		        doc.add(paragrafo);
 		        
 		        for(int i = 0; i< informacoes.size();i++) {
+		        	if(informacoes.get(i).contains("Nome da")) {
+		    	        doc.add(new Chunk());
+		    	        doc.add(new Chunk());
+		    	    	
+		        	}
 		        	paragrafo = new Paragraph(informacoes.get(i));
 			        paragrafo.setAlignment(Element.ALIGN_LEFT);
 			        paragrafo.setFont(fonte_paragrafo);
@@ -576,6 +603,18 @@ public File arquivo;
 		    }
 		
 		
+	}
+	
+	public void buildImagePanel() {
+		BufferedImage myPicture = null;
+		try {
+			myPicture = ImageIO.read(new File("/home/tarcisio/Pictures/teste.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+		jpanelDireito.add(picLabel);
 	}
 	
 }
