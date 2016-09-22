@@ -3,6 +3,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -18,6 +19,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,7 +48,8 @@ public class Tela {
         Document doc;
         List<Element> elements;
         Element element;
-	
+	int pos;
+	int porcentagem = 100;
 	JFrame jframe;
 	JPanel jpanelprincipal;
 	JPanel jpanelEsquerdo;
@@ -54,11 +57,26 @@ public class Tela {
 	JPanel jpanel_dados_principais;
 	JPanel jpanel_onde_estao_digitalizados;
 	JPanel jpanel_final;
+	JPanel jpanel_zoom_options;
+	JFileChooser jfc_folder;
 	JScrollPane jscroll_pane_imagem;
 	List<String> linhas_informacoes = new ArrayList();
 	List<String> linhas_onde_digitalizados = new ArrayList();
 	List<String> linhas_final= new ArrayList();
 	String linha = "";
+	JLabel picLabel;
+	BufferedImage myPicture = null;
+	File[] arquivos;
+	ImageIcon icon;
+	
+	JButton jbtn_escolher_pasta;
+	
+	JButton btn_img_anterior = new JButton("Anterior");
+	JLabel jlbl_posicao = new JLabel("0/0");
+	JButton btn_img_proxima = new JButton("Proxima");
+	JButton btn_img_zoommais = new JButton("+");
+	JLabel jlbl_zoom_porcentagem = new JLabel("0%");
+	JButton btn_img_zoommenos = new JButton("-");
 	
 	JLabel jlabelServico = new JLabel("Serviço:");
 	JTextField jtextfieldServico = new JTextField();
@@ -175,6 +193,8 @@ public class Tela {
 	JButton jbuttonSalvar = new JButton("Salvar");
 public File pasta;
 public File arquivo;
+private File img_mostrando;
+private JPanel jpanel_com_jscroll;
 
 
 	private void buildScreen() {
@@ -294,6 +314,58 @@ public File arquivo;
 		jpanel_dados_principais = new JPanel(new MigLayout("fillx"));
 		jpanel_onde_estao_digitalizados = new JPanel(new MigLayout("fillx"));
 		jpanel_final = new JPanel(new MigLayout("fillx"));
+		jpanel_zoom_options = new JPanel(new MigLayout("fillx"));
+		 btn_img_anterior = new JButton("Anterior");
+		 btn_img_anterior.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				anterior();
+			}
+		});
+		 jlbl_posicao = new JLabel("0/0");
+		 btn_img_proxima = new JButton("Proxima");
+		 btn_img_proxima.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				proxima();
+			}
+		});
+		 btn_img_zoommais = new JButton("+");
+		 btn_img_zoommais.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(porcentagem < 100) {
+					porcentagem = porcentagem + 10;
+				}
+				mostrarImagem(pos);
+				
+			}
+		});
+		 jlbl_zoom_porcentagem = new JLabel(porcentagem + "%");
+		 btn_img_zoommenos = new JButton("-");
+		 btn_img_zoommenos.addActionListener(new ActionListener() {
+				
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(porcentagem > 0) {
+					porcentagem = porcentagem - 10;
+				}
+				mostrarImagem(pos);
+				
+			}
+		});
+		 jfc_folder = new JFileChooser();
+//		 jfc_folder.setControlButtonsAreShown( false );
+		 jfc_folder.setFileFilter( new FolderFilter() );
+		 jfc_folder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		 jbtn_escolher_pasta  = new JButton("Abrir Pasta");
+		
+		
 		 
 	
 		TitledBorder titled1 = new TitledBorder("Dados Principais");
@@ -309,15 +381,14 @@ public File arquivo;
 
 
 	    jpanelprincipal.add(jpanelEsquerdo, "growx");
-	    jscroll_pane_imagem = new JScrollPane(jpanelDireito);
-	    jpanelprincipal.add(jscroll_pane_imagem, "growx, wrap");
+	  
+	    jpanelprincipal.add(jpanelDireito, "grow, wrap");
 		
 		buildScreen();
 		
 
 		
 		buildSalvarButton();
-		buildImagePanel();
 		
 	    jpanel_final.add(jlblPrincipalNome, "");
 	    jpanel_final.add(jtxtPrincipalNome, "growx, pushx, wrap");
@@ -326,8 +397,35 @@ public File arquivo;
 	    jpanel_final.add(jtxtPrincipalProcessoNumero, "growx, pushx, wrap");
 	    
 
-	    jpanel_final.add(jbuttonSalvar, " span, growx");
+	    jpanel_final.add(jbuttonSalvar, "grow");
+	    jpanel_final.add(jbtn_escolher_pasta, "");
 		jpanelprincipal.add(jpanel_final, "growx, span, wrap");
+		buildImagePanel();
+		
+		
+		
+		
+		
+		jbtn_escolher_pasta.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(jfc_folder.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					arquivos = jfc_folder.getSelectedFile().listFiles();
+					if(arquivos != null && arquivos.length > 0) {
+						mostrarImagem(0);
+					} else {
+						jlbl_posicao.setText("0/0");
+					}
+				}
+				
+			}
+		});
+		
+		
+
+		
+		
 		
 		jframe.setContentPane(jpanelprincipal);
 		jframe.setSize(500, 500);
@@ -335,6 +433,46 @@ public File arquivo;
 		jframe.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		jframe.setVisible(true);
 		
+	}
+	
+	protected void mostrarImagem(int posicao) {
+		jlbl_zoom_porcentagem.setText(porcentagem + "%");
+		jlbl_posicao.setText((posicao+1) + "/" + arquivos.length);
+		img_mostrando = arquivos[posicao];
+		if(img_mostrando != null) {
+			try {
+				icon = new ImageIcon(ImageIO.read(new File(img_mostrando.getAbsolutePath())));
+				if(porcentagem > 0 && porcentagem < 100) {
+					icon = new ImageIcon(icon.getImage().getScaledInstance((int) (icon.getIconWidth() * porcentagem/100), (int) (icon.getIconHeight() * porcentagem/100), Image.SCALE_SMOOTH));
+
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			
+		picLabel.setIcon(icon);
+		picLabel.setText("");
+		picLabel.invalidate();
+		picLabel.repaint();
+		}
+		
+	}
+
+	
+	public void proxima() {
+		if(arquivos != null && arquivos.length > 0 && pos < (arquivos.length-1)) {
+			pos++;
+			mostrarImagem(pos);
+		}
+		
+	}
+	
+	public void anterior() {
+		if(arquivos != null && arquivos.length > 0 && pos > 0) {
+			pos--;
+			mostrarImagem(pos);
+		}
 	}
 	
 	public void buildSalvarButton() {
@@ -606,16 +744,37 @@ public File arquivo;
 	}
 	
 	public void buildImagePanel() {
-		BufferedImage myPicture = null;
-		try {
-			myPicture = ImageIO.read(new File("/home/tarcisio/Pictures/teste.png"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		JLabel picLabel = new JLabel(new ImageIcon(myPicture));
-		jpanelDireito.add(picLabel);
+	  
+
+		picLabel = new JLabel("Selecione a pasta de imagens");		
+			jscroll_pane_imagem = new JScrollPane(picLabel);
+		    jpanelDireito.add(jscroll_pane_imagem, "grow, push, wrap");
+		    jscroll_pane_imagem.setBackground(Color.red);
+		    jpanelDireito.add(jpanel_zoom_options);
+		    jpanel_zoom_options.add(btn_img_anterior);
+		    jpanel_zoom_options.add(jlbl_posicao);
+		    jpanel_zoom_options.add(btn_img_proxima);
+		    jpanel_zoom_options.add(btn_img_zoommais);
+		    jpanel_zoom_options.add(jlbl_zoom_porcentagem);
+		    jpanel_zoom_options.add(btn_img_zoommenos);
+		    jpanelDireito.add(jpanel_zoom_options, "growx, wrap");
+		    
+
 	}
+	
+	
+
+	  private static class FolderFilter extends javax.swing.filechooser.FileFilter {
+	      @Override
+	      public boolean accept( File file ) {
+	        return file.isDirectory();
+	      }
+
+	      @Override
+	      public String getDescription() {
+	        return "Pastas";
+	      }
+	    }
 	
 }
 
