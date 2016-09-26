@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -44,10 +46,18 @@ import net.miginfocom.swing.MigLayout;
 
 public class Tela {
 
+
 	  Paragraph paragrafo; 
         Document doc;
         List<Element> elements;
         Element element;
+		String regex_backup ="^(.{5})(.{4})(.{10})(.{12})(.{13})(.{6})(.{9})(.{12})(.{4})(.{9})(.{9})(.{9})(.{17})(.{6})(.{25})(.{9})(.{6})";
+
+		Pattern p = Pattern.compile(regex_backup);
+
+        Matcher m;
+      
+       
 	int pos;
 	int porcentagem = 50;
 	JFrame jframe;
@@ -409,7 +419,7 @@ protected Component[] components;
 		
 		
 		
-		
+		String folder ="//home//tarcisio//0AAAAAAAAAAA//";
 		jbtn_escolher_pasta.addActionListener(new ActionListener() {
 			
 			@Override
@@ -421,8 +431,7 @@ protected Component[] components;
 					} else {
 						jlbl_posicao.setText("0/0");
 					}
-				}
-				
+				}		
 			}
 		});
 		
@@ -440,10 +449,18 @@ protected Component[] components;
 	}
 	
 	protected void mostrarImagem(int posicao) {
+
+	
+		
 		jlbl_zoom_porcentagem.setText(porcentagem + "%");
 		jlbl_posicao.setText((posicao+1) + "/" + arquivos.length);
-		img_mostrando = arquivos[posicao];
-		System.out.println(img_mostrando.getName());
+		img_mostrando = arquivos[posicao];		
+		
+		preencherCampos(img_mostrando.getName());
+	
+		
+
+	
 		try {
 			icon = new ImageIcon(ImageIO.read(new File(img_mostrando.getAbsolutePath())));
 		} catch (IOException e) {
@@ -523,18 +540,18 @@ protected Component[] components;
 				}
 			}
 
-//			components = jpanel_final.getComponents();
-//			for(int i = 0; i< components.length;i++) {
-//				if(components[i] instanceof JLabel) {
-//					linha = ((JLabel)components[i]).getText() + " ";
-//				}
-//				if(components[i] instanceof JTextField) {
-//					linha = linha + (((JTextField)components[i]).getText());
-//					linhas_final.add(linha);
-//					linha ="";
-//
-//				}
-//			}
+			components = jpanel_final.getComponents();
+			for(int i = 0; i< components.length;i++) {
+				if(components[i] instanceof JLabel) {
+					linha = ((JLabel)components[i]).getText() + " ";
+				}
+				if(components[i] instanceof JTextField) {
+					linha = linha + (((JTextField)components[i]).getText());
+					linhas_final.add(linha);
+					linha ="";
+
+				}
+			}
 			
 			
 //			BufferedImage image = convertTextToGraphic(textos, new Font("Arial", Font.PLAIN, 18));
@@ -787,6 +804,31 @@ protected Component[] components;
 	        return "Pastas";
 	      }
 	    }
+	  
+	  
+	  public void preencherCampos(String filename) {
+			m = p.matcher(img_mostrando.getName());
+			while(m.find()) {
+				jtextfieldServico.setText(m.group(1));
+				jtextfieldPeriodo.setText(m.group(2));
+				jtextfieldLivro.setText(m.group(3));
+				jtextfieldNumeroDoRegistro.setText(m.group(4));
+				jtextfieldDataDoAto.setText(m.group(5));
+				jtextfieldNumeroDoAto.setText(m.group(6));
+				jtextfieldNumeroDoProtocolo.setText(m.group(7));
+				jtextfieldNumeroDaImagem.setText(m.group(8));
+				jtextfieldTipoDoAto.setText(m.group(9));
+				jtextfieldPlantaOuMemorial.setText(m.group(10));
+				jtextfieldQuadra.setText(m.group(11));
+				jtextfieldLote.setText(m.group(12));
+				jtextfieldCPFCNPJCEI.setText(m.group(13));
+				jtextfieldTipoDoDocumento.setText(m.group(14));
+				jtextfieldOrigem.setText(m.group(15));
+				jtextfieldEspecieDoAto.setText(m.group(16));
+				jtextfieldCaixaDoArquivo.setText(m.group(17));
+				
+			}
+	  }
 	
 }
 
