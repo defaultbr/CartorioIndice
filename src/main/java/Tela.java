@@ -13,21 +13,28 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+import javax.management.AttributeValueExp;
 import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -54,9 +61,11 @@ public class Tela {
 		String regex_backup ="^(.{5})(.{4})(.{10})(.{12})(.{13})(.{6})(.{9})(.{12})(.{4})(.{9})(.{9})(.{9})(.{17})(.{6})(.{25})(.{9})(.{6})";
 
 		Pattern p = Pattern.compile(regex_backup);
-
         Matcher m;
       
+   	 String text;
+	 Pattern p2;
+		Matcher m2;
        
 	int pos;
 	int porcentagem = 50;
@@ -89,13 +98,13 @@ public class Tela {
 	JButton btn_img_zoommenos = new JButton("-");
 	
 	JLabel jlabelServico = new JLabel("Serviço:");
-	JTextField jtextfieldServico = new JTextField();
+	JTextField jtextfieldServico = new JTextField(5);
 	
 	JLabel jlabelPeriodo = new JLabel("Período:");
-	JTextField jtextfieldPeriodo = new JTextField();
+	JTextField jtextfieldPeriodo = new JTextField(4);
 	
 	JLabel jlabelLivro = new JLabel("Livro:");
-	JTextField jtextfieldLivro = new JTextField();
+	JTextField jtextfieldLivro = new JTextField(10);
 	
 	JLabel jlabelNumeroDoRegistro = new JLabel("Número do Registro:");
 	JTextField jtextfieldNumeroDoRegistro = new JTextField();
@@ -437,8 +446,7 @@ protected Component[] components;
 		
 		
 
-		
-		
+		ativarValidacoes();
 		
 		jframe.setContentPane(jpanelprincipal);
 		jframe.setSize(500, 500);
@@ -568,8 +576,10 @@ protected Component[] components;
 			    // the rest of your code
 			    try {
 			        if (file.createNewFile()) {
+			        	JOptionPane.showMessageDialog(null, "Arquivo Salvo");
 			            System.out.println("created new fle");
 			        } else {
+			        	JOptionPane.showMessageDialog(null, "Ocorreu um erro, arquivo não salvo");
 			            System.out.println("could not create a new file");
 			        }
 			    } catch (IOException e1) {
@@ -829,7 +839,66 @@ protected Component[] components;
 				
 			}
 	  }
-	
+
+	  public void ativarValidacoes() {
+		  jtextfieldServico.getDocument().addDocumentListener(new Validator(jtextfieldServico));
+		  jtextfieldPeriodo.getDocument().addDocumentListener(new Validator(jtextfieldPeriodo));
+//		  jtextfieldServico.getDocument().addDocumentListener(new Validator(jtextfieldServico));
+	  }
+	  
+	  
+	  
+	  public class Validator implements DocumentListener {
+
+		  JTextField dummy;
+		  
+		  public Validator(JTextField d) {
+			  this.dummy = d;
+		  }
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+warn();			
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			warn();			
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+			warn();			
+		}
+		public void warn() {
+	    	  text =dummy.getText();
+	    	
+		        
+//	 		String regex_backup ="(.{10})(.{12})(.{13})(.{6})(.{9})(.{12})(.{4})(.{9})(.{9})(.{9})(.{17})(.{6})(.{25})(.{9})(.{6})";
+
+		    	String r = "";
+		    	if(dummy == jtextfieldServico) {
+		    		r = "^(.{5})";
+		    	} 
+		    	else if(dummy == jtextfieldPeriodo) {
+		    		r = "(.{4})";
+		    	}
+		    	
+				
+		    	
+		    	 p2 = Pattern.compile(r);
+				 m2 = p2.matcher(text);
+		        
+				if(m2.find() && text.length() == dummy.getColumns()) {
+					dummy.setBackground(null);
+				} else {					
+					dummy.setBackground(Color.red);
+				}	 
+	    }
+	  }
+	  
+
+	  
+
 }
 
 
