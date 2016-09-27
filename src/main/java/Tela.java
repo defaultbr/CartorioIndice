@@ -12,6 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -72,7 +73,7 @@ public class Tela {
 	String text;
 	Pattern p2;
 	Matcher m2;
-
+	int count_erros = 0;
 	int pos;
 	int porcentagem = 50;
 	JFrame jframe;
@@ -209,6 +210,11 @@ public class Tela {
 	private File img_mostrando;
 	private JPanel jpanel_com_jscroll;
 	protected Component[] components;
+	protected String directoryName;
+	protected String fileName;
+	protected File dir;
+	protected File file;
+	protected String file_name_from_fields;
 
 	private void buildScreen() {
 		jpanel_dados_principais.add(jlabelServico, "");
@@ -406,7 +412,13 @@ public class Tela {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_folder.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					arquivos = jfc_folder.getSelectedFile().listFiles();
+					arquivos = jfc_folder.getSelectedFile().listFiles(new FilenameFilter() {
+						
+						@Override
+						public boolean accept(File dir, String name) {
+							return (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
+						}
+					});
 					if (arquivos != null && arquivos.length > 0) {
 						mostrarImagem(0);
 					} else {
@@ -503,6 +515,10 @@ public class Tela {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(count_erros < 0) { 
+					JOptionPane.showMessageDialog(null, "Primeiro corrija os erros em vermelhos");
+
+				} else {
 				if (arquivos.length > 0) {
 
 					components = jpanel_dados_principais.getComponents();
@@ -555,22 +571,61 @@ public class Tela {
 					// String home = properties.get("user.home").toString();
 					// String separator =
 					// properties.get("file.separator").toString();
-					String directoryName = arquivos[pos].getParent();
-					String fileName = arquivos[pos].getName().substring(0, arquivos[pos].getName().lastIndexOf("."))
-							+ ".pdf";
+					directoryName = arquivos[pos].getParent();
+					file_name_from_fields = 
+							jtextfieldServico.getText().toString()
+							+
+							jtextfieldPeriodo.getText().toString()
+							+
+							jtextfieldLivro.getText().toString()
+							+
+							jtextfieldNumeroDoRegistro.getText().toString()
+							+
+							jtextfieldDataDoAto.getText().toString()
+							+
+							jtextfieldNumeroDoAto.getText().toString()
+							+
+							jtextfieldNumeroDoProtocolo.getText().toString()
+							+
+							jtextfieldNumeroDaImagem.getText().toString()
+							+
+							jtextfieldTipoDoAto.getText().toString()
+							+
+							jtextfieldPlantaOuMemorial.getText().toString()
+							+
+							jtextfieldQuadra.getText().toString()
+							+
+							jtextfieldLote.getText().toString()
+							+
+							jtextfieldCPFCNPJCEI.getText().toString()
+							+
+							jtextfieldTipoDoDocumento.getText().toString()
+							+
+							jtextfieldOrigem.getText().toString()
+							+
+							jtextfieldEspecieDoAto.getText().toString()
+							+
+							jtextfieldCaixaDoArquivo.getText().toString()
+							
+							
+							;
+					
+					fileName = file_name_from_fields + ".pdf";
+					
+//					 fileName = arquivos[pos].getName().substring(0, arquivos[pos].getName().lastIndexOf("."))+ ".pdf";
 
-					File dir = new File(directoryName);
+					 dir = new File(directoryName);
 					dir.mkdir();
-					File file = new File(dir, fileName);
+					 file = new File(dir, fileName);
+					 if(file.exists()) file.delete();
 
+					 System.out.println(file.getAbsolutePath());
 					// the rest of your code
 					try {
 						if (file.createNewFile()) {
 							JOptionPane.showMessageDialog(null, "Arquivo Salvo");
-							System.out.println("created new fle");
 						} else {
 							JOptionPane.showMessageDialog(null, "Ocorreu um erro, arquivo não salvo");
-							System.out.println("could not create a new file");
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -587,6 +642,7 @@ public class Tela {
 					// e1.printStackTrace();
 					// }
 				}
+			}
 			}
 		});
 
@@ -828,52 +884,62 @@ public class Tela {
 
 		}
 	}
+	
+	public void addValidators(JTextField input, int maxSize) {
+		input.setDocument(new MaxLengthTextDocument(maxSize));
+		input.getDocument().addDocumentListener(new Validator(input));
+	}
 
 	public void ativarValidacoes() throws ParseException {
+		addValidators(jtextfieldServico, 5);
+		addValidators(jtextfieldPeriodo, 4);
 		
-		jtextfieldServico.setDocument(new MaxLengthTextDocument(5));
-		jtextfieldServico.getDocument().addDocumentListener(new Validator(jtextfieldServico));
+		addValidators(jtextfieldLivro,10);
+		addValidators(jtxtOndeEstaoLivroNumero,10);
 		
+		addValidators(jtextfieldNumeroDoRegistro,12);
+		addValidators(jtxtOndeEstaoNumeroDoRegistro,12);
 		
-		jtextfieldPeriodo.getDocument().addDocumentListener(new Validator(jtextfieldPeriodo));
-
-		jtextfieldLivro.getDocument().addDocumentListener(new Validator(jtextfieldLivro));
-
-		jtextfieldNumeroDoRegistro.getDocument().addDocumentListener(new Validator(jtextfieldNumeroDoRegistro));
-
-		jtextfieldDataDoAto.getDocument().addDocumentListener(new Validator(jtextfieldDataDoAto));
-
-		jtextfieldNumeroDoAto.getDocument().addDocumentListener(new Validator(jtextfieldNumeroDoAto));
-
-		jtextfieldNumeroDoProtocolo.getDocument().addDocumentListener(new Validator(jtextfieldNumeroDoProtocolo));
-
-		jtextfieldNumeroDaImagem.getDocument().addDocumentListener(new Validator(jtextfieldNumeroDaImagem));
-
-		jtextfieldTipoDoAto.getDocument().addDocumentListener(new Validator(jtextfieldTipoDoAto));
-
-		jtextfieldPlantaOuMemorial.getDocument().addDocumentListener(new Validator(jtextfieldPlantaOuMemorial));
-
-		jtextfieldQuadra.getDocument().addDocumentListener(new Validator(jtextfieldQuadra));
-
-		jtextfieldLote.getDocument().addDocumentListener(new Validator(jtextfieldLote));
-
-		jtextfieldCPFCNPJCEI.getDocument().addDocumentListener(new Validator(jtextfieldCPFCNPJCEI));
-
-		jtextfieldTipoDoDocumento.getDocument().addDocumentListener(new Validator(jtextfieldTipoDoDocumento));
-
-		jtextfieldOrigem.getDocument().addDocumentListener(new Validator(jtextfieldOrigem));
-
-		jtextfieldEspecieDoAto.getDocument().addDocumentListener(new Validator(jtextfieldEspecieDoAto));
-
-		jtextfieldCaixaDoArquivo.getDocument().addDocumentListener(new Validator(jtextfieldCaixaDoArquivo));
+		addValidators(jtextfieldDataDoAto,13);
+		
+		addValidators(jtextfieldNumeroDoAto,6);
+		addValidators(jtxtOndeEstaoAtoNumero,6);
+		
+		addValidators(jtextfieldNumeroDoProtocolo,9);
+		addValidators(jtxtOndeEstaoProtocoloNumero,9);
+		
+		addValidators(jtextfieldNumeroDaImagem,12);
+		addValidators(jtxtOndeEstaoNumeroDaImagem,12);
+		
+		addValidators(jtextfieldTipoDoAto,4);
+		
+		addValidators(jtextfieldPlantaOuMemorial,9);
+		addValidators(jtxtOndeEstaoPlantaOuMemorial,9);
+		
+		addValidators(jtextfieldQuadra,9);
+		addValidators(jtxtOndeEstaoQuadraNumero,9);
+		
+		addValidators(jtextfieldLote,9);
+		addValidators(jtxtOndeEstaoLoteNumero,9);
+		
+		addValidators(jtextfieldCPFCNPJCEI,17);
+		addValidators(jtextfieldTipoDoDocumento,6);
+		addValidators(jtextfieldOrigem,25);
+		addValidators(jtextfieldEspecieDoAto,9);
+		addValidators(jtextfieldCaixaDoArquivo,6);
 	}
 
 	public class Validator implements DocumentListener {
 
 		JTextField dummy;
-
+		
 		public Validator(JTextField d) {
 			this.dummy = d;
+		}
+		
+		public Validator(JTextField d, int maxLength) {
+			this.dummy = d;
+			d.setDocument(new MaxLengthTextDocument(maxLength));
 		}
 
 		@Override
@@ -894,7 +960,6 @@ public class Tela {
 		public void warn() {
 			text = dummy.getText();
 
-			System.out.println(text);
 			String r = "";
 			if (dummy == jtextfieldServico) {
 				r = "^(.{5})";
@@ -902,24 +967,25 @@ public class Tela {
 				r = "(.{4})";
 			} else if (dummy == jtextfieldLivro) {
 				r = "(.{10})";
-			} else if (dummy == jtextfieldNumeroDoRegistro) {
-				System.out.println("ta no numero do registro");
+			} else if (dummy == jtxtOndeEstaoLivroNumero) {
+				r = "(.{10})";				
+			} else if (dummy == jtextfieldNumeroDoRegistro || dummy == jtxtOndeEstaoNumeroDoRegistro) {
 				r = "(.{12})";
 			} else if (dummy == jtextfieldDataDoAto) {
 				r = "(.{13})";
-			} else if (dummy == jtextfieldNumeroDoAto) {
+			} else if (dummy == jtextfieldNumeroDoAto || dummy == jtxtOndeEstaoAtoNumero) {
 				r = "(.{6})";
-			} else if (dummy == jtextfieldNumeroDoProtocolo) {
+			} else if (dummy == jtextfieldNumeroDoProtocolo || dummy == jtxtOndeEstaoProtocoloNumero) {
 				r = "(.{9})";
-			} else if (dummy == jtextfieldNumeroDaImagem) {
+			} else if (dummy == jtextfieldNumeroDaImagem || dummy == jtxtOndeEstaoNumeroDaImagem) {
 				r = "(.{12})";
 			} else if (dummy == jtextfieldTipoDoAto) {
 				r = "(.{4})";
-			} else if (dummy == jtextfieldPlantaOuMemorial) {
+			} else if (dummy == jtextfieldPlantaOuMemorial || dummy == jtxtOndeEstaoPlantaOuMemorial) {
 				r = "(.{9})";
-			} else if (dummy == jtextfieldQuadra) {
+			} else if (dummy == jtextfieldQuadra || dummy == jtxtOndeEstaoQuadraNumero) {
 				r = "(.{9})";
-			} else if (dummy == jtextfieldLote) {
+			} else if (dummy == jtextfieldLote || dummy == jtxtOndeEstaoLoteNumero) {
 				r = "(.{9})";
 			} else if (dummy == jtextfieldCPFCNPJCEI) {
 				r = "(.{17})";
@@ -936,9 +1002,13 @@ public class Tela {
 			p2 = Pattern.compile(r);
 			m2 = p2.matcher(text);
 
-			if (m2.find() && text.length() == dummy.getColumns() && text.length() > 0) {
+			
+			if (m2.find() && text.length() > 0 && text != " ") {
 				dummy.setBackground(null);
+				if(dummy.getBackground() != null && count_erros < 0) count_erros = count_erros +1;
+				if(count_erros < 0) count_erros = count_erros +1;
 			} else {
+				if(dummy.getBackground() != Color.RED) count_erros = count_erros -1;
 				dummy.setBackground(Color.red);
 			}
 		}
@@ -956,7 +1026,7 @@ public class Tela {
 		public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
 			// the length of string that will be created is getLength() +
 			// str.length()
-			if (str != null && (getLength() + str.length() <= maxChars)) {
+			if (str != null && (getLength() + str.length() <= maxChars) && str.length() > 0) {
 				super.insertString(offs, str.toUpperCase(), a);
 			}
 		}
