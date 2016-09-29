@@ -706,8 +706,10 @@ public class Tela {
 		fontSize = font.getSize();
 		nextLinePosition = (int) (nextLinePosition + informacoes_shape.getBounds().getY() + nextLinePosition);
 
+
 		for (int i = 0; i < linhas_informacoes.size(); i++) {
-			if (linhas_informacoes.get(i).startsWith("Nome da Pessoa")) {
+			System.out.println(linhas_informacoes.get(i));
+			if (linhas_informacoes.get(i).contains("Nome da Pessoa")) {
 				nextLinePosition = nextLinePosition + 4;
 				g2d.setColor(Color.RED);
 				g2d.drawLine(padding_sides, nextLinePosition, width, nextLinePosition);
@@ -771,10 +773,11 @@ public class Tela {
 			paragrafo.setFont(fonte_titulo);
 			doc.add(paragrafo);
 
+
 			for (int i = 0; i < informacoes.size(); i++) {
 				if (informacoes.get(i).contains("Nome da")) {
 					doc.add(new Chunk());
-					doc.add(new Chunk());
+					doc.add(new Chunk(ls));
 
 				}
 				paragrafo = new Paragraph(informacoes.get(i));
@@ -785,13 +788,12 @@ public class Tela {
 
 			doc.add(new Chunk(ls));
 
-			paragrafo = new Paragraph("Estão Digitalizados:");
+			paragrafo = new Paragraph("ESTÃO DIGITALIZADOS EM:");
 			paragrafo.setAlignment(Element.ALIGN_CENTER);
 			paragrafo.setFont(fonte_titulo);
 			doc.add(paragrafo);
-
+			
 			for (int i = 0; i < digitalizados_em.size(); i++) {
-
 				paragrafo = new Paragraph(digitalizados_em.get(i));
 				paragrafo.setAlignment(Element.ALIGN_LEFT);
 				paragrafo.setFont(fonte_paragrafo);
