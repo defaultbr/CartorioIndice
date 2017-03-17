@@ -1132,10 +1132,10 @@ public class Tela {
 				if (m2.find() && text.length() > 0 && text != " ") {
 					//dummy.setBackground(null);
 					dummy.setBorder(border_black);
-					if(dummy.getBackground() != null && count_erros < 0) count_erros = count_erros +1;
+					if(dummy.getBorder() != null && count_erros < 0) count_erros = count_erros +1;
 					if(count_erros < 0) count_erros = count_erros +1;
 				} else {
-					if(dummy.getBackground() != Color.RED) count_erros = count_erros -1;
+					if(dummy.getBorder() != border_black) count_erros = count_erros -1;
 					  dummy.setBorder(border_red);
 					//dummy.setBackground(Color.red);
 				}
