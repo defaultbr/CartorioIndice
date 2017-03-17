@@ -923,11 +923,11 @@ public class Tela {
 	}
 
 	public void preencherCampos(String filename) {
+		JOptionPane.showMessageDialog(null, filename);
 		if(jcheckbox_remissao2.isSelected()) {
 			p = Pattern.compile(regex_remissao1);
 			m = p.matcher(img_mostrando.getName());
 			while (m.find()) {
-				JOptionPane.showMessageDialog(null, m.toString());
 				jtextfieldServico.setText(m.group(1));
 				jtextfieldPeriodo.setText(m.group(2));
 				jtextfieldNumeroDoProtocolo.setText(m.group(3));
