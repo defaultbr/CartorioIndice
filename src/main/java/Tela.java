@@ -1109,38 +1109,8 @@ public class Tela {
 			m2 = p2.matcher(text);
 		
 
-			if(jcheckbox_remissao2.isSelected()) {
-				if(
-						dummy == jtextfieldServico 
-						|| 
-						dummy == jtextfieldPeriodo 
-						|| 
-						dummy == jtextfieldNumeroDoProtocolo 
-						|| 
-						dummy == jtextfieldNumeroDaImagem 
-						|| 
-						dummy == jtextfieldNumeroDoRegistro 
-						|| 
-						dummy == jtextfieldPlantaOuMemorial 
-						|| 
-						dummy == jtextfieldTipoDoAto 
-						|| 
-						dummy == jtextfieldTipoDoDocumento) {
-					
+			if(!jcheckbox_remissao2.isSelected()) {
 				
-					
-				if (m2.find() && text.length() > 0 && text != " ") {
-					//dummy.setBackground(null);
-					dummy.setBorder(border_black);
-					if(dummy.getBorder() != null && count_erros < 0) count_erros = count_erros +1;
-					if(count_erros < 0) count_erros = count_erros +1;
-				} else {
-					if(dummy.getBorder() != border_black) count_erros = count_erros -1;
-					  dummy.setBorder(border_red);
-					//dummy.setBackground(Color.red);
-				}
-				}
-			} else {
 			if (m2.find() && text.length() > 0 && text != " ") {
 				//dummy.setBackground(null);
 				dummy.setBorder(border_black);
@@ -1150,7 +1120,7 @@ public class Tela {
 				if(dummy.getBackground() != Color.RED) count_erros = count_erros -1;
 				  dummy.setBorder(border_red);
 				//dummy.setBackground(Color.red);
-			}
+			
 			}
 		}
 	}
