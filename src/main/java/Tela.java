@@ -74,7 +74,7 @@ public class Tela {
 	List<Element> elements;
 	Element element;
 	String regex_remissao1 = "^(.{5})(.{4})(.{10})(.{12})(.{13})(.{6})(.{9})(.{12})(.{4})(.{9})(.{9})(.{9})(.{17})(.{6})(.{25})(.{9})(.{6})";
-	String regex_remissao_2 = "^(.{5})"
+	String regex_remissao2 = "^(.{5})"
 			+ "(.{4})"
 			+ "(.{9})"
 			+ "(.{12})"
@@ -924,7 +924,7 @@ public class Tela {
 
 	public void preencherCampos(String filename) {
 		if(jcheckbox_remissao2.isSelected()) {
-			p = Pattern.compile(regex_remissao1);
+			p = Pattern.compile(regex_remissao2);
 			m = p.matcher(img_mostrando.getName());
 			while (m.find()) {
 				JOptionPane.showMessageDialog(null, m.group(1));
