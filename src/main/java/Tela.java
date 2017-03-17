@@ -568,7 +568,7 @@ public class Tela {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(count_erros < 0) { 
+				if(count_erros < 0 && !jcheckbox_remissao2.isSelected()) { 
 					JOptionPane.showMessageDialog(null, "Primeiro corrija os erros em vermelhos");
 
 				} else {
@@ -1109,7 +1109,7 @@ public class Tela {
 			m2 = p2.matcher(text);
 		
 
-			if(!jcheckbox_remissao2.isSelected()) {
+		
 				
 			if (m2.find() && text.length() > 0 && text != " ") {
 				//dummy.setBackground(null);
