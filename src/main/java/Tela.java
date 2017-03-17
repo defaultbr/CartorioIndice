@@ -8,6 +8,8 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -23,9 +25,11 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.management.AttributeValueExp;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -36,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -60,6 +65,9 @@ import com.itextpdf.text.pdf.draw.LineSeparator;
 import net.miginfocom.swing.MigLayout;
 
 public class Tela {
+
+	  Border border_red = BorderFactory.createLineBorder(Color.red);
+	  Border border_black = BorderFactory.createLineBorder(Color.black);
 
 	Paragraph paragrafo;
 	Document doc;
@@ -215,6 +223,7 @@ public class Tela {
 	protected File dir;
 	protected File file;
 	protected String file_name_from_fields;
+	private JCheckBox jcheckbox_remissao2;
 
 	private void buildScreen() {
 		jpanel_dados_principais.add(jlabelServico, "");
@@ -374,6 +383,9 @@ public class Tela {
 		jfc_folder.setFileFilter(new FolderFilter());
 		jfc_folder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		jbtn_escolher_pasta = new JButton("Abrir Pasta");
+		
+		jcheckbox_remissao2 = new JCheckBox();
+		jcheckbox_remissao2.setText("Remissão 2");
 
 		TitledBorder titled1 = new TitledBorder("Dados Principais");
 		TitledBorder titled2 = new TitledBorder("Onde Estão Digitalizados");
@@ -402,7 +414,40 @@ public class Tela {
 		jpanel_final.add(jtxtObservacoes, "growx, pushx, wrap");
 
 		jpanel_final.add(jbuttonSalvar, "grow");
-		jpanel_final.add(jbtn_escolher_pasta, "");
+		jpanel_final.add(jbtn_escolher_pasta, "wrap");
+		jpanel_final.add(jcheckbox_remissao2, "grow");
+		
+		jcheckbox_remissao2.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+            	Color color = null;
+            	
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                	color = Color.BLUE;
+                } 
+                
+                jtextfieldServico.setBackground(color);
+				;
+				jtextfieldPeriodo.setBackground(color);
+				;
+				jtextfieldNumeroDoProtocolo.setBackground(color);
+				;
+				jtextfieldNumeroDaImagem.setBackground(color);
+				;
+				jtextfieldNumeroDoRegistro.setBackground(color);
+				;
+				jtextfieldPlantaOuMemorial.setBackground(color);
+				;
+				jtextfieldTipoDoAto.setBackground(color);
+				;
+				jtextfieldTipoDoDocumento.setBackground(color);
+       
+                	
+                
+                
+            }
+        });
 		jpanelprincipal.add(jpanel_final, "growx, span, wrap");
 		buildImagePanel();
 
@@ -572,43 +617,67 @@ public class Tela {
 					// String separator =
 					// properties.get("file.separator").toString();
 					directoryName = arquivos[pos].getParent();
-					file_name_from_fields = 
-							jtextfieldServico.getText().toString()
-							+
-							jtextfieldPeriodo.getText().toString()
-							+
-							jtextfieldLivro.getText().toString()
-							+
-							jtextfieldNumeroDoRegistro.getText().toString()
-							+
-							jtextfieldDataDoAto.getText().toString()
-							+
-							jtextfieldNumeroDoAto.getText().toString()
-							+
-							jtextfieldNumeroDoProtocolo.getText().toString()
-							+
-							jtextfieldNumeroDaImagem.getText().toString()
-							+
-							jtextfieldTipoDoAto.getText().toString()
-							+
-							jtextfieldPlantaOuMemorial.getText().toString()
-							+
-							jtextfieldQuadra.getText().toString()
-							+
-							jtextfieldLote.getText().toString()
-							+
-							jtextfieldCPFCNPJCEI.getText().toString()
-							+
-							jtextfieldTipoDoDocumento.getText().toString()
-							+
-							jtextfieldOrigem.getText().toString()
-							+
-							jtextfieldEspecieDoAto.getText().toString()
-							+
-							jtextfieldCaixaDoArquivo.getText().toString()
-							
-							
-							;
+					
+					if(jcheckbox_remissao2.isSelected()) {
+						file_name_from_fields = 
+								jtextfieldServico.getText().toString() //1
+								+
+								jtextfieldPeriodo.getText().toString() //2
+								+
+								jtextfieldNumeroDoProtocolo.getText().toString() //3
+								+
+								jtextfieldNumeroDaImagem.getText().toString() //4
+								+
+								jtextfieldNumeroDoRegistro.getText().toString() //5
+								+
+								jtextfieldPlantaOuMemorial.getText().toString() //6
+								+
+								jtextfieldTipoDoAto.getText().toString() //7
+								+
+								jtextfieldTipoDoDocumento.getText().toString() //8
+								
+								
+								;
+					} else {
+						file_name_from_fields = 
+								jtextfieldServico.getText().toString()
+								+
+								jtextfieldPeriodo.getText().toString()
+								+
+								jtextfieldLivro.getText().toString()
+								+
+								jtextfieldNumeroDoRegistro.getText().toString()
+								+
+								jtextfieldDataDoAto.getText().toString()
+								+
+								jtextfieldNumeroDoAto.getText().toString()
+								+
+								jtextfieldNumeroDoProtocolo.getText().toString()
+								+
+								jtextfieldNumeroDaImagem.getText().toString()
+								+
+								jtextfieldTipoDoAto.getText().toString()
+								+
+								jtextfieldPlantaOuMemorial.getText().toString()
+								+
+								jtextfieldQuadra.getText().toString()
+								+
+								jtextfieldLote.getText().toString()
+								+
+								jtextfieldCPFCNPJCEI.getText().toString()
+								+
+								jtextfieldTipoDoDocumento.getText().toString()
+								+
+								jtextfieldOrigem.getText().toString()
+								+
+								jtextfieldEspecieDoAto.getText().toString()
+								+
+								jtextfieldCaixaDoArquivo.getText().toString()
+								
+								
+								;
+					}
+					
 					
 					fileName = file_name_from_fields + ".pdf";
 					
@@ -1006,12 +1075,14 @@ public class Tela {
 
 			
 			if (m2.find() && text.length() > 0 && text != " ") {
-				dummy.setBackground(null);
+				//dummy.setBackground(null);
+				dummy.setBorder(border_black);
 				if(dummy.getBackground() != null && count_erros < 0) count_erros = count_erros +1;
 				if(count_erros < 0) count_erros = count_erros +1;
 			} else {
 				if(dummy.getBackground() != Color.RED) count_erros = count_erros -1;
-				dummy.setBackground(Color.red);
+				  dummy.setBorder(border_red);
+				//dummy.setBackground(Color.red);
 			}
 		}
 	}
