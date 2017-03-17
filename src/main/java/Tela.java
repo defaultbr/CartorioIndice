@@ -929,10 +929,19 @@ public class Tela {
 			while (m.find()) {
 				jtextfieldServico.setText(m.group(1));
 				jtextfieldPeriodo.setText(m.group(2));
+				
 				jtextfieldNumeroDoProtocolo.setText(m.group(3));
+				jtxtOndeEstaoProtocoloNumero.setText(m.group(3));
+				
 				jtextfieldNumeroDaImagem.setText(m.group(4));
+				jtxtOndeEstaoNumeroDaImagem.setText(m.group(4));
+				
 				jtextfieldNumeroDoRegistro.setText(m.group(5));
+				jtxtOndeEstaoNumeroDoRegistro.setText(m.group(5));
+			
 				jtextfieldPlantaOuMemorial.setText(m.group(6));
+				jtxtOndeEstaoPlantaOuMemorial.setText(m.group(6));
+				
 				jtextfieldTipoDoAto.setText(m.group(7));
 				jtextfieldTipoDoDocumento.setText(m.group(8));
 
