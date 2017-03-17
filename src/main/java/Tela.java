@@ -73,9 +73,17 @@ public class Tela {
 	Document doc;
 	List<Element> elements;
 	Element element;
-	String regex_backup = "^(.{5})(.{4})(.{10})(.{12})(.{13})(.{6})(.{9})(.{12})(.{4})(.{9})(.{9})(.{9})(.{17})(.{6})(.{25})(.{9})(.{6})";
-
-	Pattern p = Pattern.compile(regex_backup);
+	String regex_remissao1 = "^(.{5})(.{4})(.{10})(.{12})(.{13})(.{6})(.{9})(.{12})(.{4})(.{9})(.{9})(.{9})(.{17})(.{6})(.{25})(.{9})(.{6})";
+	String regex_remissao_2 = "^(.{5})"
+			+ "(.{4})"
+			+ "(.{9})"
+			+ "(.{12})"
+			+ "(.{11})"
+			+ "(.{9})"
+			+ "(.{4})"
+			+ "(.{6})"
+			;
+	Pattern p;
 	Matcher m;
 
 	String text;
@@ -327,7 +335,7 @@ public class Tela {
 
 	public void run() {
 		jframe = new JFrame();
-		jpanelprincipal = new JPanel(new MigLayout("debug, fillx", "[grow, 50%][grow, 50%]"));
+		jpanelprincipal = new JPanel(new MigLayout("fillx", "[grow, 50%][grow, 50%]"));
 		jpanelEsquerdo = new JPanel(new MigLayout("fillx"));
 		jpanelDireito = new JPanel(new MigLayout("fillx"));
 		jpanel_dados_principais = new JPanel(new MigLayout("fillx"));
@@ -413,8 +421,8 @@ public class Tela {
 		jpanel_final.add(jlblObservacoes);
 		jpanel_final.add(jtxtObservacoes, "growx, pushx, wrap");
 
-		jpanel_final.add(jbuttonSalvar, "grow");
-		jpanel_final.add(jbtn_escolher_pasta, "wrap");
+		jpanel_final.add(jbuttonSalvar, "");
+		jpanel_final.add(jbtn_escolher_pasta, "");
 		jpanel_final.add(jcheckbox_remissao2, "grow");
 		
 		jcheckbox_remissao2.addItemListener(new ItemListener() {
@@ -424,7 +432,7 @@ public class Tela {
             	Color color = null;
             	
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                	color = Color.BLUE;
+                	color = Color.YELLOW;
                 } 
                 
                 jtextfieldServico.setBackground(color);
@@ -915,8 +923,27 @@ public class Tela {
 	}
 
 	public void preencherCampos(String filename) {
+		if(jcheckbox_remissao2.isSelected()) {
+			p = Pattern.compile(regex_remissao1);
+			m = p.matcher(img_mostrando.getName());
+			while (m.find()) {
+				
+				jtextfieldServico.setText(m.group(1));
+				jtextfieldPeriodo.setText(m.group(2));
+				jtextfieldNumeroDoProtocolo.setText(m.group(3));
+				jtextfieldNumeroDaImagem.setText(m.group(4));
+				jtextfieldNumeroDoRegistro.setText(m.group(5));
+				jtextfieldPlantaOuMemorial.setText(m.group(6));
+				jtextfieldTipoDoAto.setText(m.group(7));
+				jtextfieldTipoDoDocumento.setText(m.group(8));
+
+			}
+		} else {
+			
+		p = Pattern.compile(regex_remissao1);
 		m = p.matcher(img_mostrando.getName());
 		while (m.find()) {
+			
 			jtextfieldServico.setText(m.group(1));
 			jtextfieldPeriodo.setText(m.group(2));
 			
@@ -952,7 +979,7 @@ public class Tela {
 			jtextfieldOrigem.setText(m.group(15));
 			jtextfieldEspecieDoAto.setText(m.group(16));
 			jtextfieldCaixaDoArquivo.setText(m.group(17));
-
+		}
 		}
 	}
 	
@@ -1072,6 +1099,7 @@ public class Tela {
 
 			p2 = Pattern.compile(r);
 			m2 = p2.matcher(text);
+		
 
 			
 			if (m2.find() && text.length() > 0 && text != " ") {
